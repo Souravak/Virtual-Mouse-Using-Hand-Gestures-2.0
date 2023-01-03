@@ -2,9 +2,10 @@
 import cv2
 import mediapipe as mp
 import time
-
+from handTrackingModule import *
 # live video capture
 cap = cv2.VideoCapture(0)
+tracker = handTracker()
 # 180 degree the visuals
 
 
@@ -27,6 +28,10 @@ cTime = 0
 prev = "None"
 while True:
     success, img = cap.read()
+    img = tracker.handsFinder(img)
+    lmList = tracker.positionFinder(img)
+    if len(lmList) != 0:
+        print(lmList[4])
     imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     results = hands.process(imgRGB)
 
@@ -49,12 +54,16 @@ while True:
         for hand in results.multi_handedness:
             # print(hand.classification[0].label)
             if(hand.classification[0].label == "Right"):
+                cv2.putText(img, "Left hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, ( 0,255, 0), 2)
                 if(prev != "Right"):
                     print("left hand detected")
                     prev = "Right"
+                    # show hand detected on image
             else:
+                cv2.putText(img, "Right hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, (0,255,0), 2)
                 if(prev != "Left"):
                     print("right hand detected")
+                    # show hand detected on image
                     prev = "Left"
 
     if results.multi_hand_landmarks:
@@ -64,18 +73,21 @@ while True:
                 h, w, c = img.shape
                 cx, cy = int(lm.x *w), int(lm.y*h)
                 #if id ==0:
-                cv2.circle(img, (cx,cy), 1, (0,0,255), cv2.FILLED)
+                # cv2.circle(img, (cx,cy), 1, (0,0,255), cv2.FILLED)
 
             mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
 
 
-    cTime = time.time()
-    fps = 1/(cTime-pTime)
-    pTime = cTime
+    # cTime = time.time()
+    # fps = 1/(cTime-pTime)
+    # pTime = cTime
 
+    # cv2.imshow("Image", img)
     #display fps
     # cv2.putText(img,str(int(fps)), (10,70), cv2.FONT_HERSHEY_PLAIN, 4, (0,0,0), 1)
     # print the right or left hand
-
+    # print fps on image
+    # cv2.putText(img, str(int(fps)), (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2)
     cv2.imshow("Image", img)
+
     cv2.waitKey(1)

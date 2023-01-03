@@ -519,7 +519,7 @@ class GestureController:
         hand obtained from mediapipe, uses 'dom_hand' to decide major and
         minor hand.
         """
-        left , right = None,None
+        left , right = None, None
         try:
             handedness_dict = MessageToDict(results.multi_handedness[0])
             if handedness_dict['classification'][0]['label'] == 'Right':
