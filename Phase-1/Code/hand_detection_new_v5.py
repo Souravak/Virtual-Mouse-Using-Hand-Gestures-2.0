@@ -230,7 +230,8 @@ def scroll_control(hand_landmarks):
     knob = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_TIP].y
     print("knob : ",knob)
     print("screen height : ",screen_height)
-    print("New knob : ",knob * screen_height)
+    knob = knob * screen_height
+    print("New knob : ",knob)
 
     # example value of knob: 0.5
     dist = screen_height/2 - knob
