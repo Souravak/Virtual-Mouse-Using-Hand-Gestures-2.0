@@ -228,6 +228,9 @@ def brightness_control(hand_landmarks):
     
 def scroll_control(hand_landmarks):
     knob = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_TIP].y
+    print("knob : ",knob)
+    print("screen height : ",screen_height)
+
     # example value of knob: 0.5
     dist = screen_height/2 - knob
     if knob > screen_height / 2:
@@ -323,7 +326,7 @@ while True:
         # if now.second%2 == 0:
         # finger_status = {'index': False,'middle': False, 'ring': False, 'pinky': False, 'thumb': False}
 
-        print("########################################")
+        # print("########################################")
         is_index_open = is_index_finger_open(handLms)
         # print('Index finger:', is_index_open)
 
@@ -339,7 +342,7 @@ while True:
         # is_thumb_open = is_thumb_finger_open(handLms)
         # print('Thumb finger:', is_thumb_open)
         is_thumb_open = False
-        print("\n")
+        # print("\n")
 
         # finger_status['index'] = is_index_open
         # finger_status['middle'] = is_middle_open
