@@ -228,10 +228,10 @@ def brightness_control(hand_landmarks):
 def scroll_control(hand_landmarks):
     knob = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_TIP].y
     dist = screen_height/2 - knob
-    if knob > screen_height / 2 + 50:
+    if knob > screen_height / 2:
         print("Scroll Down")
         pg.scroll(-100)
-    elif knob < screen_height / 2 - 50:
+    elif knob < screen_height / 2:
         print("Scroll Up")
         pg.scroll(100)
 
