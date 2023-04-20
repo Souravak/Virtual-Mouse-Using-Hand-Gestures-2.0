@@ -107,8 +107,9 @@ def cursor_move_with_wrist(hand_landmarks, prev_cursor_pos):
         # Calculate the difference in position since the last frame
         dx = (wrist_pos[0] - prev_cursor_pos[0])
         dy = (wrist_pos[1] - prev_cursor_pos[1])
-        print("dx : ", dx)
-        print("dy: ", dy)
+        # print("dx : ", dx)
+        # print("dy: ", dy)
+        
         # Update the cursor position
         
         cursor_pos = (cursor_pos[0] + dx, cursor_pos[1] + dy)
@@ -227,6 +228,7 @@ def brightness_control(hand_landmarks):
     
 def scroll_control(hand_landmarks):
     knob = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_TIP].y
+    # example value of knob: 0.5
     dist = screen_height/2 - knob
     if knob > screen_height / 2:
         print("Scroll Down")
@@ -295,7 +297,7 @@ while True:
     # checking whether a hand is detected
     if not results.multi_hand_landmarks:
         if(prev != "None"):
-            print("No hands detected")
+            # print("No hands detected") - 
             # print no hand detected on image
             prev = "None"
 
@@ -309,12 +311,12 @@ while True:
             if(hand.classification[0].label == "Right"):
                 cv2.putText(image, "Right hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, ( 0,255, 0), 2)
                 if(prev != "Right"):
-                    print("right hand detected")
+                    # print("right hand detected") - 
                     prev = "Right"
             else:
                 cv2.putText(image, "Left hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, (0,255,0), 2)
                 if(prev != "Left"):
-                    print("left hand detected")
+                    # print("left hand detected") - 
                     prev = "Left"
         
         # now = datetime.now()
@@ -323,16 +325,16 @@ while True:
 
         print("########################################")
         is_index_open = is_index_finger_open(handLms)
-        print('Index finger:', is_index_open)
+        # print('Index finger:', is_index_open)
 
         is_middle_open = is_middle_finger_open(handLms)
-        print('Middle finger:', is_middle_open)
+        # print('Middle finger:', is_middle_open)
 
         is_ring_open = is_ring_finger_open(handLms)
-        print('Ring finger:', is_ring_open)
+        # print('Ring finger:', is_ring_open)
 
         is_pinky_open = is_pinky_finger_open(handLms)
-        print('Pinky finger:', is_pinky_open)
+        # print('Pinky finger:', is_pinky_open)
 
         # is_thumb_open = is_thumb_finger_open(handLms)
         # print('Thumb finger:', is_thumb_open)
