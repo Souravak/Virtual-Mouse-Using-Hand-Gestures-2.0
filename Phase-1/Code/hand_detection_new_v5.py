@@ -226,6 +226,18 @@ def brightness_control(hand_landmarks):
 #             pg.press('volumedown')
     
 def scroll_control(hand_landmarks):
+    knob = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_TIP].y
+    if knob > screen_height / 2 + 200:
+        print("Scroll Down")
+        pg.scroll(-100)
+    elif knob < screen_height / 2 - 200:
+        print("Scroll Up")
+        pg.scroll(100)
+
+    
+
+
+    '''
     h = 480
     for lm in hand_landmarks.landmark:
         cy = int(lm.y * h)
@@ -240,6 +252,7 @@ def scroll_control(hand_landmarks):
             verticalScrollDistance = cy - 200
             pg.vscroll(verticalScrollDistance)
     # increase volume based on the distance from the center of the screen
+    '''
 
 '''
 if results.multi_hand_landmarks:    
