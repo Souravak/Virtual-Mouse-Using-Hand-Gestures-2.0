@@ -122,7 +122,7 @@ def cursor_move_with_wrist(hand_landmarks, prev_cursor_pos):
     # return prev_cursor_pos
 
 def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix this funtion
-    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False]:
+    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False] and finger_status !=  [True, True, True, False, False] and finger_status !=  [False, False, True, True, False] :
         # what is this? 
         return prev_finger_status
     if prev_finger_status != finger_status:
