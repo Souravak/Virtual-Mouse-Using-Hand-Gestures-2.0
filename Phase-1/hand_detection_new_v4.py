@@ -114,8 +114,8 @@ def cursor_move_with_wrist(hand_landmarks, prev_cursor_pos):
         # prev_cursor_pos = cursor_pos
     # return prev_cursor_pos
 
-def identify_gesture(finger_status, prev_finger_status): # fix this funtion
-    if prev_finger_status == finger_status : 
+def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix this funtion
+    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False]: 
         return prev_finger_status
     if prev_finger_status != finger_status:
         if prev_finger_status == [True, False, False, False, False]:
@@ -135,9 +135,14 @@ def identify_gesture(finger_status, prev_finger_status): # fix this funtion
         print("Left Click")
         pg.mouseDown(button='left')
     elif finger_status == [False, True, True, True, False]:
-        print("Zoom")
+        print("Volume Controls")
+        volume_control(hand_landmarks)
+    elif finger_status == [False, False, True, True, False]:
+        print("Brightness Controls")
     elif finger_status == [False, False, False, True, False]:
-        print("Sound")
+        print("Zoom Controls")
+    elif finger_status == [True, True, True, False, False]:
+        print("Scroll Controls")
     else:
         print("Not assigned")
     prev_finger_status = finger_status
@@ -158,6 +163,25 @@ def identify_gesture(finger_status, prev_finger_status): # fix this funtion
     # elif finger_status == [False, False, False, False, False]:
     #     print("ZERO")
     
+def volume_control(hand_landmarks):
+    pointer = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height
+    if pointer < screen_height / 2 - 200:
+        print("p<s => pointer: ", pointer, "screen_height/2: ", screen_height/2)
+        pg.press('volumeup')
+    elif pointer > screen_height / 2 + 200:
+        print("p>s => pointer: ", pointer, "screen_height/2: ", screen_height/2)
+        pg.press('volumedown')
+    # increase volume based on the distance from the center of the screen
+
+
+# def volume_control(hand_landmarks):
+#     if hand_landmarks:
+#         if hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y < hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
+#             print("Volume Up")
+#             pg.press('volumeup')
+#         elif hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y > hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
+#             print("Volume Down")
+#             pg.press('volumedown')
     
 
 mpDraw = mp.solutions.drawing_utils
@@ -238,7 +262,7 @@ while True:
 
         cursor_move_with_wrist(handLms, prev_cursor_pos)
         finger_status = [is_index_open, is_middle_open, is_ring_open, is_pinky_open, is_thumb_open]
-        prev_finger_status = identify_gesture(finger_status, prev_finger_status)
+        prev_finger_status = identify_gesture(finger_status, prev_finger_status, handLms)
         
 
         prev_cursor_pos = pg.position()
@@ -286,4 +310,7 @@ while True:
 # able to identify all gestures
 # capable of right and left click
 
-# next state : 
+# next state : scroll, zoom, brightness, sound controls
+# add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
+
+# current state : adjest the volume_control funtion

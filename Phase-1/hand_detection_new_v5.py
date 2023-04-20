@@ -6,13 +6,19 @@ import time
 import itertools
 import numpy as np #not used
 from datetime import datetime
+# import screen_brightness_control as sbc
+import wmi
 screen_width, screen_height = pg.size()
+# brightness = int(sbc.get_brightness()[0])
+brightnessController = wmi.WMI(namespace='wmi')
+brightnessMethod = brightnessController.WmiMonitorBrightnessMethods()[0]
+currentBrightness = wmi.WMI(namespace='wmi').WmiMonitorBrightness()[0]
 # global cursor_pos
 # global prev_cursor_pos
 # prev_cursor_pos = pg.position()
 # cursor_pos = pg.position()
 # prev_cursor_pos = cursor_pos
-
+ 
 # wrist_pos = None
 
 pg.FAILSAFE = False #disable fail safe
@@ -114,8 +120,9 @@ def cursor_move_with_wrist(hand_landmarks, prev_cursor_pos):
         # prev_cursor_pos = cursor_pos
     # return prev_cursor_pos
 
-def identify_gesture(finger_status, prev_finger_status): # fix this funtion
-    if prev_finger_status == finger_status : 
+def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix this funtion
+    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False]:
+        # what is this? 
         return prev_finger_status
     if prev_finger_status != finger_status:
         if prev_finger_status == [True, False, False, False, False]:
@@ -135,9 +142,16 @@ def identify_gesture(finger_status, prev_finger_status): # fix this funtion
         print("Left Click")
         pg.mouseDown(button='left')
     elif finger_status == [False, True, True, True, False]:
-        print("Zoom")
+        print("Volume Controls")
+        volume_control(hand_landmarks)
+    elif finger_status == [False, False, True, True, False]:
+        print("Brightness Controls")
+        # brightness_control(hand_landmarks)
     elif finger_status == [False, False, False, True, False]:
-        print("Sound")
+        print("Zoom Controls")
+    elif finger_status == [True, True, True, False, False]:
+        print("Scroll Controls")
+        scroll_control(hand_landmarks)
     else:
         print("Not assigned")
     prev_finger_status = finger_status
@@ -158,7 +172,94 @@ def identify_gesture(finger_status, prev_finger_status): # fix this funtion
     # elif finger_status == [False, False, False, False, False]:
     #     print("ZERO")
     
+def volume_control(hand_landmarks):
+    pointer = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height
+    if pointer < screen_height / 2 - 200:
+        print("p<s => pointer: ", pointer, "screen_height/2: ", screen_height/2)
+        pg.press('volumeup')
+    elif pointer > screen_height / 2 + 200:
+        print("p>s => pointer: ", pointer, "screen_height/2: ", screen_height/2)
+        pg.press('volumedown')
+    # increase volume based on the distance from the center of the screen
+
+def brightness_control(hand_landmarks):
+    global currentBrightness
+    pointer = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height
+    if pointer < screen_height / 2 - 200:
+        print("p<s => pointer: ", pointer, "screen_height/2: ", screen_height/2)
+        # pg.press('volumeup')
+        print("Brightness increase")
+        currentBrightness += 10
+        # pg.keyDown('fn')
+        # pg.hotkey('f8')
+        # sbc.set_brightness(brightness)
+        # time.sleep(1)
+    elif pointer > screen_height / 2 + 200:
+        print("p>s => pointer: ", pointer, "screen_height/2: ", screen_height/2)
+        # pg.press('volumedown')
+        # brightness-=10
+        print("Brightness decrease")
+        currentBrightness -= 10
+        # sbc.set_brightness(brightness)
+        # pg.hotkey('f7')
+        # time.sleep(1)
+
+        # sbc.set_brightness(brightness)
+    # increase brightness based on the distance from the center of the screen
+    brightnessMethod.WmiSetBrightness(currentBrightness, 0)
+    # import wmi
+    # import time
+    # for i in range(1,11):
+    #     brightness = i*10 # percentage [0-100] For changing thee screen 
+    #     c = wmi.WMI(namespace='wmi')
+    #     methods = c.WmiMonitorBrightnessMethods()[0]    
+    #     methods.WmiSetBrightness(brightness, 0)
+    #     time.sleep(0.5)
+
+# def volume_control(hand_landmarks):
+#     if hand_landmarks:
+#         if hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y < hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
+#             print("Volume Up")
+#             pg.press('volumeup')
+#         elif hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y > hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
+#             print("Volume Down")
+#             pg.press('volumedown')
     
+def scroll_control(hand_landmarks):
+    h = 480
+    for lm in hand_landmarks.landmark:
+        cy = int(lm.y * h)
+        # scroll control
+        verticalScrollDistance = 0
+        
+        if cy > 300:
+            verticalScrollDistance = cy - 300
+            # cy scroll speed increases with distance
+            pg.vscroll(verticalScrollDistance)
+        elif cy < 200:
+            verticalScrollDistance = cy - 200
+            pg.vscroll(verticalScrollDistance)
+    # increase volume based on the distance from the center of the screen
+
+'''
+if results.multi_hand_landmarks:    
+        for handLms in results.multi_hand_landmarks: # working with each hand
+            for id, lm in enumerate(handLms.landmark):
+                h, w, c = image.shape
+                cy =int(lm.y * h)
+
+                # scroll control
+                verticalScrollDistance =0
+                
+                if cy > 300:
+                    verticalScrollDistance = cy - 300
+                    # cy scroll speed increases with distance
+                    pg.vscroll(verticalScrollDistance)
+                elif cy < 200:
+                    verticalScrollDistance = cy - 200
+                    pg.vscroll(verticalScrollDistance)
+'''
+
 
 mpDraw = mp.solutions.drawing_utils
 prev = "None"
@@ -205,6 +306,7 @@ while True:
         # now = datetime.now()
         # if now.second%2 == 0:
         # finger_status = {'index': False,'middle': False, 'ring': False, 'pinky': False, 'thumb': False}
+
         print("########################################")
         is_index_open = is_index_finger_open(handLms)
         print('Index finger:', is_index_open)
@@ -238,7 +340,7 @@ while True:
 
         cursor_move_with_wrist(handLms, prev_cursor_pos)
         finger_status = [is_index_open, is_middle_open, is_ring_open, is_pinky_open, is_thumb_open]
-        prev_finger_status = identify_gesture(finger_status, prev_finger_status)
+        prev_finger_status = identify_gesture(finger_status, prev_finger_status, handLms)
         
 
         prev_cursor_pos = pg.position()
@@ -281,10 +383,12 @@ while True:
     cv2.waitKey(1)
     
 
-
 # current state : tracking wrist and moving cursor with it. 
 # able to identify all gestures
 # capable of right and left click
-# volume increase and decrease
+# adjest the volume_control funtion
 
-# next state : volume controls
+# next state : scroll, 
+# add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
+
+# current state : brightness control stuck (solution : set brightness after completing the gesture. ie if prev = cur = brightness condition then update brightness var else set brightness)
