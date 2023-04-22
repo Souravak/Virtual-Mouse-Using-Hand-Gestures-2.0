@@ -229,6 +229,17 @@ def brightness_control(hand_landmarks):
 def scroll_control(hand_landmarks):
     # scroll_wheel = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_PIP].y
     scroll_wheel = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_PIP].y
+
+    height, width, _ = image.shape
+    # calculate the distance between the middle finger pip and the center of the camera
+    distance = int((0.5 - scroll_wheel) * height)
+
+    # scroll up or down based on the position of the middle finger pip
+    if scroll_wheel < 0.45:
+        pg.scroll(-distance)
+    elif scroll_wheel > 0.55:
+        pg.scroll(distance)
+    '''
     # print("Scroll wheel : ", scroll_wheel)
     # print("screen height : ", screen_height)
     scroll_wheel = int(scroll_wheel * screen_height)
@@ -259,6 +270,12 @@ def scroll_control(hand_landmarks):
     #                 elif cy < 200:
     #                     verticalScrollDistance = cy - 200
     #                     pg.vscroll(verticalScrollDistance)
+
+
+
+
+
+    '''
 
 
 
@@ -427,8 +444,10 @@ while True:
 # able to identify all gestures
 # capable of right and left click
 # adjest the volume_control funtion
+# brightness control implemented
+# scrolling completed
 
-# next state : scroll, 
+# next state : zooming
 # add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
 
 # current state : brightness control stuck (solution : set brightness after completing the gesture. ie if prev = cur = brightness condition then update brightness var else set brightness)

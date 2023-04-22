@@ -5,7 +5,9 @@ import PIL
 import time
 import itertools
 import numpy as np #not used
+import math
 from datetime import datetime
+
 # import screen_brightness_control as sbc
 import wmi
 screen_width, screen_height = pg.size()
@@ -97,6 +99,7 @@ def is_thumb_finger_open(hand_landmarks):
         # print("THUMB CLOSED")
         return False
 
+# Cursonr movement controller
 def cursor_move_with_wrist(hand_landmarks, prev_cursor_pos):
     cursor_pos = pg.position()
     x, y = int(hand_landmarks.landmark[mpHands.HandLandmark.WRIST].x * screen_width), \
@@ -121,8 +124,9 @@ def cursor_move_with_wrist(hand_landmarks, prev_cursor_pos):
         # prev_cursor_pos = cursor_pos
     # return prev_cursor_pos
 
+# Gesture Identifier
 def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix this funtion
-    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False] and finger_status !=  [True, True, True, False, False] and finger_status !=  [False, False, True, True, False] :
+    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False] and finger_status !=  [True, True, True, False, False] and finger_status !=  [False, False, True, True, False] and finger_status != [False, False, False, True, False]:
         # what is this? 
         return prev_finger_status
     if prev_finger_status != finger_status:
@@ -148,11 +152,12 @@ def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix t
     elif finger_status == [False, False, True, True, False]:
         print("Brightness Controls")
         # brightness_control(hand_landmarks)
-    elif finger_status == [False, False, False, True, False]:
-        print("Zoom Controls")
     elif finger_status == [True, True, True, False, False]:
         print("Scroll Controls")
         scroll_control(hand_landmarks)
+    elif finger_status == [False, False, False, True, False]:
+        print("Zoom Controls")
+        zoom_control(hand_landmarks)
     else:
         print("Not assigned")
     prev_finger_status = finger_status
@@ -173,6 +178,7 @@ def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix t
     # elif finger_status == [False, False, False, False, False]:
     #     print("ZERO")
     
+# Volume controller
 def volume_control(hand_landmarks):
     pointer = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height
     if pointer < screen_height / 2 - 200:
@@ -183,6 +189,7 @@ def volume_control(hand_landmarks):
         pg.press('volumedown')
     # increase volume based on the distance from the center of the screen
 
+# Brightness controller
 def brightness_control(hand_landmarks):
     global currentBrightness
     pointer = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height
@@ -217,18 +224,31 @@ def brightness_control(hand_landmarks):
     #     methods.WmiSetBrightness(brightness, 0)
     #     time.sleep(0.5)
 
-# def volume_control(hand_landmarks):
-#     if hand_landmarks:
-#         if hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y < hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
-#             print("Volume Up")
-#             pg.press('volumeup')
-#         elif hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y > hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
-#             print("Volume Down")
-#             pg.press('volumedown')
-    
+    # def volume_control(hand_landmarks):
+    #     if hand_landmarks:
+    #         if hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y < hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
+    #             print("Volume Up")
+    #             pg.press('volumeup')
+    #         elif hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y > hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP].y:
+    #             print("Volume Down")
+    #             pg.press('volumedown')
+
+# Scroll controller
 def scroll_control(hand_landmarks):
     # scroll_wheel = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_PIP].y
     scroll_wheel = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_PIP].y
+
+    height, width, _ = image.shape
+    # calculate the distance between the middle finger pip and the center of the camera
+    distance = int((0.5 - scroll_wheel) * height)
+
+    # scroll up or down based on the position of the middle finger pip
+    if scroll_wheel < 0.45:
+        pg.scroll(-distance)
+    elif scroll_wheel > 0.55:
+        pg.scroll(distance)
+
+    '''
     # print("Scroll wheel : ", scroll_wheel)
     # print("screen height : ", screen_height)
     scroll_wheel = int(scroll_wheel * screen_height)
@@ -265,6 +285,12 @@ def scroll_control(hand_landmarks):
 
 
     '''
+
+
+
+
+
+    '''
     h = 480
     for lm in hand_landmarks.landmark:
         cy = int(lm.y * h)
@@ -281,25 +307,73 @@ def scroll_control(hand_landmarks):
     # increase volume based on the distance from the center of the screen
     '''
 
-'''
-if results.multi_hand_landmarks:    
-        for handLms in results.multi_hand_landmarks: # working with each hand
-            for id, lm in enumerate(handLms.landmark):
-                h, w, c = image.shape
-                cy =int(lm.y * h)
+    '''
+    if results.multi_hand_landmarks:    
+            for handLms in results.multi_hand_landmarks: # working with each hand
+                for id, lm in enumerate(handLms.landmark):
+                    h, w, c = image.shape
+                    cy =int(lm.y * h)
 
-                # scroll control
-                verticalScrollDistance =0
-                
-                if cy > 300:
-                    verticalScrollDistance = cy - 300
-                    # cy scroll speed increases with distance
-                    pg.vscroll(verticalScrollDistance)
-                elif cy < 200:
-                    verticalScrollDistance = cy - 200
-                    pg.vscroll(verticalScrollDistance)
-'''
+                    # scroll control
+                    verticalScrollDistance =0
+                    
+                    if cy > 300:
+                        verticalScrollDistance = cy - 300
+                        # cy scroll speed increases with distance
+                        pg.vscroll(verticalScrollDistance)
+                    elif cy < 200:
+                        verticalScrollDistance = cy - 200
+                        pg.vscroll(verticalScrollDistance)
+    '''
 
+# Zoom controller
+def zoom_control(hand_landmarks):
+    # scroll_wheel = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_PIP].y
+    print("Zoom")
+    zoomer = hand_landmarks.landmark[mpHands.HandLandmark.PINKY_TIP].y
+
+    # height, width, _ = image.shape
+    # calculate the distance between the middle finger pip and the center of the camera
+    # distance = int((0.5 - zoomer) * height)
+
+    # scroll up or down based on the position of the middle finger pip# scroll_wheel = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_PIP].y
+    # scroll_wheel = hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_PIP].y
+
+    # height, width, _ = image.shape
+    # calculate the distance between the middle finger pip and the center of the camera
+    # distance = int((0.5 - scroll_wheel) * height)
+
+    # scroll up or down based on the position of the middle finger pip
+    # if scroll_wheel < 0.45:
+    #     pg.scroll(-distance)
+    # elif scroll_wheel > 0.55:
+    #     pg.scroll(distance)
+    print("Zoomer : ", zoomer)
+    if zoomer < 0.4:
+        print("Zoom In")
+        pg.hotkey('ctrl', '+')
+    elif zoomer > 0.5:
+        print("Zoom out")
+        pg.hotkey('ctrl', '-')
+
+    '''
+    # get the position of the index finger tip
+    index_finger_tip = hand_landmarks.landmark[mpHands.HandLandmark.INDEX_FINGER_TIP]
+    # get the position of the thumb tip
+    thumb_tip = hand_landmarks.landmark[mpHands.HandLandmark.THUMB_TIP]
+
+    # calculate the distance between the index finger tip and the thumb tip
+    distance = math.hypot(index_finger_tip.x - thumb_tip.x, index_finger_tip.y - thumb_tip.y)
+    print("distance:", distance)
+
+    # zoom in or out based on the distance between the index finger tip and the thumb tip
+    if distance < 0.1:
+        pg.hotkey('ctrl', '0')
+        print("Zoom Reset")
+    elif distance > 0.2:
+        print("Zoom In")
+        pg.hotkey('ctrl', '+')
+    '''
 
 mpDraw = mp.solutions.drawing_utils
 prev = "None"
@@ -427,8 +501,11 @@ while True:
 # able to identify all gestures
 # capable of right and left click
 # adjest the volume_control funtion
+# brightness control implemented(bug)
+# scrolling completed
+# Zooming completed
 
-# next state : scroll, 
+# next state : brightness bug fixing
 # add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
 
 # current state : brightness control stuck (solution : set brightness after completing the gesture. ie if prev = cur = brightness condition then update brightness var else set brightness)
