@@ -14,7 +14,10 @@ screen_height, screen_width = pg.size()
 c = wmi.WMI(namespace='wmi')
 methods = c.WmiMonitorBrightnessMethods()[0]
 current_brightness = 50
-print("Current brightness", current_brightness)
+# print("Current brightness", current_brightness)
+# initial position of the cursor
+# global prev_cursor_pos
+prev_cursor_pos = pg.position()
 
 pg.FAILSAFE = False #disable fail safe from hand_functions import is_forefinger_open live video capture
 
@@ -71,30 +74,39 @@ def is_thumb_finger_open(hand_landmarks):
         return False
 
 # Cursonr movement controller
-def cursor_move_with_wrist(hand_landmarks, prev_cursor_pos):
-    cursor_pos = pg.position()
+def cursor_control(hand_landmarks, prev_cursor_pos):
+    # cursor_pos = pg.position() #bug
+    cursor_pos = prev_cursor_pos
     '''x, y = int(hand_landmarks.landmark[mpHands.HandLandmark.WRIST].x * screen_width), \
             int(hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y * screen_height)'''
     x, y = int(hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].x * screen_width), \
             int(hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height)
-    wrist_pos = (x, y)
+    new_pos = (x, y)
         # Move the cursor based on the wrist position
-    if wrist_pos is not None:
+    if new_pos is not None:
         # Calculate the difference in position since the last frame
-        dx = (wrist_pos[0] - prev_cursor_pos[0])
-        dy = (wrist_pos[1] - prev_cursor_pos[1])
+        dx = (new_pos[0] - prev_cursor_pos[0])
+        dy = (new_pos[1] - prev_cursor_pos[1])
         
         # Update the cursor position
         cursor_pos = (cursor_pos[0] + dx, cursor_pos[1] + dy)
+
+        # Check if the cursor position is within the screen boundaries
+        cursor_pos = (
+            min(max(cursor_pos[0], 0), screen_width - 1),
+            min(max(cursor_pos[1], 0), screen_height - 1),
+        )
 
         # Move the cursor
         pg.moveTo(*cursor_pos)
 
         # Save the current cursor position
+        prev_cursor_pos = cursor_pos
+    return prev_cursor_pos
 
 # Gesture Identifier
 def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix this funtion
-    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False] and finger_status !=  [True, True, True, False, False] and finger_status !=  [False, False, True, True, False] and finger_status != [False, False, False, True, False]:
+    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False] and finger_status !=  [True, True, True, False, False] and finger_status !=  [False, False, True, True, False] and finger_status != [False, False, False, True, False] and finger_status != finger_status == [True, True, False, False, False]:
         # what is this? 
         return prev_finger_status
     if prev_finger_status != finger_status:
@@ -107,6 +119,8 @@ def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix t
             
     if finger_status == [True, True, False, False, False]:
         print("Normal Mouse Mode")
+        global prev_cursor_pos
+        prev_cursor_pos = cursor_control(hand_landmarks, prev_cursor_pos)
     elif finger_status == [True, False, False, False, False]:
         print("Right Click")
         pg.mouseDown(button='right')
@@ -198,8 +212,7 @@ isFlipped = False
 booting = True
 screenWidth, screenHeight = pg.size()
 print("width is", screenWidth, screenHeight)
-global prev_cursor_pos
-prev_cursor_pos = pg.position()
+
 prev_finger_status = [False, False, False, False, False]
 while True:
     success, image = cap.read()
@@ -245,7 +258,7 @@ while True:
         is_thumb_open = False
         # print("\n")
 
-        cursor_move_with_wrist(handLms, prev_cursor_pos)
+        # cursor_move_with_wrist(handLms, prev_cursor_pos)
         finger_status = [is_index_open, is_middle_open, is_ring_open, is_pinky_open, is_thumb_open]
         prev_finger_status = identify_gesture(finger_status, prev_finger_status, handLms)
 
@@ -266,7 +279,7 @@ while True:
 # Zooming completed
 # brightness function bug fixed
 
-# next state : cursor movement bug fixing
+# next state : cursor movement bug fixing stage 2(boundary fixing)
 # add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
 
 # current state : brightness control stuck (solution : set brightness after completing the gesture. ie if prev = cur = brightness condition then update brightness var else set brightness)
