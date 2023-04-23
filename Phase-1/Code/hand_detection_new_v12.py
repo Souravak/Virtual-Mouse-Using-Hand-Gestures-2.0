@@ -280,16 +280,23 @@ while True:
 
         cv2.putText(image, "No hands detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255), 2)
     else:
-        for (hand, handLms) in itertools.zip_longest(results.multi_handedness, results.multi_hand_landmarks):
+        # for (hand, handLms) in itertools.zip_longest(results.multi_handedness, results.multi_hand_landmarks):
+        #     print("hand : ", hand)
+        #     print("handLms : ", handLms)
             
-            if(hand.classification[0].label == "Right"):
-                cv2.putText(image, "Right hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, ( 0,255, 0), 2)
-                if(prev != "Right"):
-                    prev = "Right"
-            else:
-                cv2.putText(image, "Left hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, (0,255,0), 2)
-                if(prev != "Left"):
-                    prev = "Left"
+        if(results.multi_handedness[0].classification[0].label == "Right"):
+            cv2.putText(image, "Right hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, ( 0,255, 0), 2)
+            if(prev != "Right"):
+                prev = "Right"
+        else:
+            cv2.putText(image, "Left hand detected", (10, 70), cv2.FONT_HERSHEY_PLAIN, 2, (0,255,0), 2)
+            if(prev != "Left"):
+                prev = "Left"
+        
+        # handLms = results.multi_handedness[0].landmark[0]
+        handLms = results.multi_hand_landmarks[0]
+        # print("handLms : ", handLms.landmark[0])
+
         
         is_index_open = is_index_finger_open(handLms)
         # print('Index finger:', is_index_open)
