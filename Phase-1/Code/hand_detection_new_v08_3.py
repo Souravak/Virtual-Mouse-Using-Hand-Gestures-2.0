@@ -73,7 +73,7 @@ def is_thumb_finger_open(hand_landmarks):
     else:
         return False
 
-# Cursonr movement controller
+# Cursor movement controller
 def cursor_control(hand_landmarks, prev_cursor_pos):
     # cursor_pos = pg.position() #bug
     cursor_pos = pg.position()
@@ -106,7 +106,11 @@ def cursor_control(hand_landmarks, prev_cursor_pos):
 
 # Gesture Identifier
 def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix this funtion
-    if prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False] and finger_status !=  [True, True, True, False, False] and finger_status !=  [False, False, True, True, False] and finger_status != [False, False, False, True, False] and finger_status != finger_status == [True, True, False, False, False]:
+    global prev_cursor_pos
+    # sound, scroll, brightness, zoom, mouse
+    if (prev_finger_status == finger_status and finger_status !=  [False, True, True, True, False] \
+        and finger_status !=  [True, True, True, False, False] and finger_status !=  [False, False, True, True, False] \
+            and finger_status != [False, False, False, True, False] and finger_status != [True, True, False, False, False] and finger_status != [False, True, False, False, False]) :
         # what is this? 
         return prev_finger_status
     if prev_finger_status != finger_status:
@@ -119,13 +123,13 @@ def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix t
             
     if finger_status == [True, True, False, False, False]:
         print("Normal Mouse Mode")
-        global prev_cursor_pos
         prev_cursor_pos = cursor_control(hand_landmarks, prev_cursor_pos)
     elif finger_status == [True, False, False, False, False]:
         if prev_finger_status != [True, False, False, False, False]: 
             print("Right Click")
             pg.mouseDown(button='right')
     elif finger_status == [False, True, False, False, False]:
+        prev_cursor_pos = cursor_control(hand_landmarks, prev_cursor_pos)
         if prev_finger_status != [False, True, False, False, False]:
             print("Left Click")
             pg.mouseDown(button='left')
@@ -280,8 +284,8 @@ while True:
 # scrolling completed
 # Zooming completed
 # brightness function bug fixed
-
-# next state : cursor movement bug fixing stage 2(boundary fixing)
+# cursor movement bug fixing stage 2(boundary fixed)
+# next state : scroll function not scrolling up
 # add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
 
 # current state : brightness control stuck (solution : set brightness after completing the gesture. ie if prev = cur = brightness condition then update brightness var else set brightness)
