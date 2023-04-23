@@ -29,6 +29,7 @@ hands = mpHands.Hands(static_image_mode = False,
                       min_detection_confidence=0.5,
                       min_tracking_confidence=0.5)
                       
+# FINGER SECTION START
 # Index finger open or close check
 def is_index_finger_open(hand_landmarks):
     if not hand_landmarks:
@@ -74,40 +75,7 @@ def is_thumb_finger_open(hand_landmarks):
     else:
         return False
 
-# Cursor movement controller
-def cursor_control(hand_landmarks, prev_cursor_pos):
-    # cursor_pos = pg.position() #bug
-    # global screen_width, screen_height
-    # screen_width = screen_width * 2
-    # screen_height = screen_height * 2
-    print("Height : ", screen_height, "Width : ", screen_width)
-    cursor_pos = pg.position()
-    '''x, y = int(hand_landmarks.landmark[mpHands.HandLandmark.WRIST].x * screen_width), \
-            int(hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y * screen_height)'''
-    x, y = int(hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].x * screen_width), \
-            int(hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height)
-    new_pos = (x, y)
-        # Move the cursor based on the wrist position
-    if new_pos is not None:
-        # Calculate the difference in position since the last frame
-        dx = (new_pos[0] - prev_cursor_pos[0]) 
-        dy = (new_pos[1] - prev_cursor_pos[1]) 
-        
-        # Update the cursor position
-        cursor_pos = (cursor_pos[0] + dx, cursor_pos[1] + dy)
-
-        # Check if the cursor position is within the screen boundaries
-        # cursor_pos = (
-        #     min(max(cursor_pos[0], 0), screen_width - 1),
-        #     min(max(cursor_pos[1], 0), screen_height - 1),
-        # )
-
-        # Move the cursor
-        pg.moveTo(*cursor_pos)
-
-        # Save the current cursor position
-        prev_cursor_pos = cursor_pos
-    return prev_cursor_pos
+# FINGER SECTION END
 
 # Gesture Identifier
 def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix this funtion
@@ -150,11 +118,53 @@ def identify_gesture(finger_status, prev_finger_status, hand_landmarks): # fix t
     elif finger_status == [False, False, False, True, False]:
         print("Zoom Controls")
         zoom_control(hand_landmarks)
+    elif finger_status == [False, False, False, False, False]:
+        print("Closing app")
+        close_app()
+    elif finger_status == [True, False, False, True, False]:
+        print("Press enter")
+        press_enter()
     else:
         print("Not assigned")
     prev_finger_status = finger_status
     return prev_finger_status
     
+# CONTROL SECTION START
+# Cursor movement controller
+def cursor_control(hand_landmarks, prev_cursor_pos):
+    # cursor_pos = pg.position() #bug
+    # global screen_width, screen_height
+    # screen_width = screen_width * 2
+    # screen_height = screen_height * 2
+    print("Height : ", screen_height, "Width : ", screen_width)
+    cursor_pos = pg.position()
+    '''x, y = int(hand_landmarks.landmark[mpHands.HandLandmark.WRIST].x * screen_width), \
+            int(hand_landmarks.landmark[mpHands.HandLandmark.WRIST].y * screen_height)'''
+    x, y = int(hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].x * screen_width), \
+            int(hand_landmarks.landmark[mpHands.HandLandmark.MIDDLE_FINGER_MCP].y * screen_height)
+    new_pos = (x, y)
+        # Move the cursor based on the wrist position
+    if new_pos is not None:
+        # Calculate the difference in position since the last frame
+        dx = (new_pos[0] - prev_cursor_pos[0]) 
+        dy = (new_pos[1] - prev_cursor_pos[1]) 
+        
+        # Update the cursor position
+        cursor_pos = (cursor_pos[0] + dx, cursor_pos[1] + dy)
+
+        # Check if the cursor position is within the screen boundaries
+        # cursor_pos = (
+        #     min(max(cursor_pos[0], 0), screen_width - 1),
+        #     min(max(cursor_pos[1], 0), screen_height - 1),
+        # )
+
+        # Move the cursor
+        pg.moveTo(*cursor_pos)
+
+        # Save the current cursor position
+        prev_cursor_pos = cursor_pos
+    return prev_cursor_pos
+
 # Volume controller
 def volume_control(hand_landmarks):
     '''
@@ -216,6 +226,22 @@ def zoom_control(hand_landmarks):
     elif zoomer > 0.5:
         print("Zoom out")
         pg.hotkey('ctrl', '-')
+
+# CONTROL SECTION END
+
+# ADDITIONAL CONTROLS START
+
+# Closing appication
+def close_app():
+    print("Closing app")
+    pg.hotkey('alt', 'f4')
+
+# Press 'enter'
+def press_enter():
+    print("Pressing enter")
+    pg.press('enter')
+
+# ADDITIONAL CONTROLS END
 
 mpDraw = mp.solutions.drawing_utils
 prev = "None"
@@ -281,20 +307,25 @@ while True:
     
     cv2.waitKey(1)
 
-# current state : tracking wrist and moving cursor with it. 
-# able to identify all gestures
-# capable of right and left click
-# adjest the volume_control funtion
-# brightness control implemented(bug)
-# scrolling completed
-# Zooming completed
-# brightness function bug fixed
-# cursor movement bug fixing stage 2(boundary fixed)
-# scroll function not scrolling up(fixed)
 
-# next state : add more gestures
-# add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
+# Description
+'''
+    current state : tracking wrist and moving cursor with it. 
+    able to identify all gestures
+    capable of right and left click
+    adjest the volume_control funtion
+    brightness control implemented(bug)
+    scrolling completed
+    Zooming completed
+    brightness function bug fixed
+    cursor movement bug fixing stage 2(boundary fixed)
+    scroll function not scrolling up(fixed)
+    added more gestures
 
-# current state : brightness control stuck (solution : set brightness after completing the gesture. ie if prev = cur = brightness condition then update brightness var else set brightness)
+    next state : add more gestures and add the thumb finger identification and functionalities
+    add a timer to the gestures - if the gesture is not completed within a certain time, it is not registered(optional)
 
-# scroll function contributed by Adithyan S P
+    current state : brightness control stuck (solution : set brightness after completing the gesture. ie if prev = cur = brightness condition then update brightness var else set brightness)
+
+    scroll function contributed by Adithyan S P
+'''
