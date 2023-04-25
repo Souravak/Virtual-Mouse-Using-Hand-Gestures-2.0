@@ -217,9 +217,9 @@ def scroll_control(hand_landmarks):
     distance = int((0.5 - scroll_wheel) * height)
 
     # scroll up or down based on the position of the middle finger pip
-    if scroll_wheel < 0.45:
-        pg.scroll(-distance)
-    elif scroll_wheel > 0.55:
+    if scroll_wheel < 0.4:
+        pg.scroll(distance)
+    elif scroll_wheel > 0.5:
         pg.scroll(distance)
 
 # Zoom controller
@@ -299,7 +299,7 @@ while True:
 
         
         is_index_open = is_index_finger_open(handLms)
-        # print('Index finger:', is_index_open)
+        # print('Index finger:', is_index_open) 
 
         is_middle_open = is_middle_finger_open(handLms)
         # print('Middle finger:', is_middle_open)
