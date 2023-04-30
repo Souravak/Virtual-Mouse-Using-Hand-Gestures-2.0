@@ -1,13 +1,7 @@
 import cv2
 import mediapipe as mp
 import pyautogui as pg
-import PIL
-import time
-import itertools
-import numpy as np #not used
-import math
 import wmi
-from datetime import datetime
 
 screen_height, screen_width = pg.size()
 screen_width = screen_width * 2
