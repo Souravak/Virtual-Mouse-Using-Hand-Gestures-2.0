@@ -257,4 +257,6 @@ Note: Use Python version: 3.8.5
   | |  |  |  |  |
   | ------------- | ------------- | ------------- | ------------- | ------------- |
   | Sourav A K | [GitHub](https://github.com/souravak) | [Email](mailto:souravak211@gmail.com) | [LinkedIn](https://www.linkedin.com/in/srvak/) | [Instagram](https://www.instagram.com/s.r.v.a.k) |
+  | Mithun K | [GitHub](https://github.com/souravak) | [Email](mailto:souravak211@gmail.com) | [LinkedIn](https://www.linkedin.com/in/srvak/) | [Instagram](https://www.instagram.com/s.r.v.a.k) |
+  | Adithyan S P | [GitHub](https://github.com/souravak) | [Email](mailto:souravak211@gmail.com) | [LinkedIn](https://www.linkedin.com/in/srvak/) | [Instagram](https://www.instagram.com/s.r.v.a.k) |
   
