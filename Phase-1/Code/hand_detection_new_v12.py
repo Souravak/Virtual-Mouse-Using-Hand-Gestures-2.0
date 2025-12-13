@@ -258,6 +258,8 @@ screenWidth, screenHeight = pg.size()
 print("width is", screenWidth, screenHeight)
 
 prev_finger_status = [False, False, False, False, False]
+
+print("Starting Hand Detection")
 while True:
     success, image = cap.read()
     # flip correction
