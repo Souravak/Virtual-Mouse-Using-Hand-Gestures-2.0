@@ -7,4 +7,5 @@
 /requirements.txt
 venv
 Proton.py
-/src
+src/
+.github

@@ -69,6 +69,7 @@ Note: Use Python version: 3.10.5 or below
  <figcaption>Dynamic Gestures for Zoom control. The rate of increase/decrease of brightness is proportional to the distance moved from center of the screen to up or down. </figcaption>
 </details>
 
+<details>
 <summary>Close Control</summary>
  <figcaption>Dynamic Gestures for Close control.</figcaption>
 </details>
